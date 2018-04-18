@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Countrinfo</string>
+    <string name="main_menu_search_title">Search</string>
 </resources>
