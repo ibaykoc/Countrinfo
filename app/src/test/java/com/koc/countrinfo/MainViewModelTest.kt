@@ -42,20 +42,9 @@ class MainViewModelTest {
 
         Mockito.`when`(api.getAllCountry()).thenReturn(Single.just(emptyList()))
 
-        vm = MainViewModel(api, TestScheduler(), TestScheduler())
+        vm = MainViewModel(api, Schedulers.trampoline(), Schedulers.trampoline())
 
         Mockito.verify(api).getAllCountry()
-    }
-
-    @Test
-    fun whenGetAllCountryDataErrorSetErrorValue(){
-        val expectedReturn = Throwable("a")
-        Mockito.`when`(api.getAllCountry())
-                .thenReturn(Single.error<List<CountryDataModel>>(expectedReturn))
-
-        vm = MainViewModel(api, TestScheduler(), TestScheduler())
-
-        Assert.assertEquals(expectedReturn,LiveDataTestUtil.getValue(vm.error))
     }
 
     @Test
@@ -71,5 +60,16 @@ class MainViewModelTest {
         andrdSchdlr.advanceTimeTo(2,TimeUnit.SECONDS)
         Assert.assertEquals(false,LiveDataTestUtil.getValue(vm.loading))
 
+    }
+
+    @Test
+    fun whenGetAllCountryDataErrorSetErrorValue(){
+        val expectedReturn = Throwable("a")
+        Mockito.`when`(api.getAllCountry())
+                .thenReturn(Single.error(expectedReturn))
+
+        vm = MainViewModel(api, Schedulers.trampoline(), Schedulers.trampoline())
+
+        Assert.assertEquals(expectedReturn,LiveDataTestUtil.getValue(vm.error))
     }
 }

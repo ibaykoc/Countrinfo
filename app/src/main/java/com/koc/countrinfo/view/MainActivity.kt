@@ -2,12 +2,13 @@ package com.koc.countrinfo.view
 
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.ViewModelProviders
-import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
+import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
+import android.view.Menu
 import android.view.View
 import android.view.ViewGroup
 import com.ahmadrosid.svgloader.SvgLoader
@@ -19,7 +20,6 @@ import com.koc.countrinfo.viewmodel.factory.MainViewModelFactory
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.main_countrylist_item.*
 import kotlinx.android.synthetic.main.main_countrylist_item.view.*
 
 class MainActivity : AppCompatActivity() {
@@ -45,6 +45,30 @@ class MainActivity : AppCompatActivity() {
                     })
                 }
 
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menu?.let {
+            menuInflater.inflate(R.menu.main_menu, menu)
+
+            val searchMenu = menu.findItem(R.id.action_search)
+
+            (searchMenu.actionView as SearchView).setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    return false
+                }
+
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    newText?.let {
+                        viewModel.filter(it)
+                        return true
+                    }
+                    return false
+                }
+
+            })
+        }
+        return super.onCreateOptionsMenu(menu)
     }
 
     private fun showLoading(show: Boolean) {
@@ -81,18 +105,13 @@ class MainActivity : AppCompatActivity() {
             holder.itemView.countryName.text = data[position].name
             SvgLoader.pluck()
                     .with(this@MainActivity)
-                    .load(data[position].flagUrl,holder.itemView.flagImage)
+                    .load(data[position].flagUrl, holder.itemView.flagImage)
         }
 
         fun updateData(newData: List<CountryUiModel>) {
-            val oldSize = data.size
-            val newSize = newData.size
-            val diff = newSize - oldSize
+            data.clear()
             data.addAll(newData)
-            if (diff > 0)
-                notifyItemRangeChanged(oldSize, diff)
-            else
-                notifyDataSetChanged()
+            notifyDataSetChanged()
         }
 
         inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView)
