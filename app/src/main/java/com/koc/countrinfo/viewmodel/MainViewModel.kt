@@ -56,4 +56,9 @@ class MainViewModel(val api: RestCountriesApi, val processSchedulers: Scheduler,
             data.value = it
         }
     }
+
+    override fun onCleared() {
+        compositeDisposable.dispose()
+        super.onCleared()
+    }
 }
